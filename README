@@ -1,0 +1,20 @@
+===================================
+Django Crowd Authentication Backend
+===================================
+
+This is the most basic authentication backend connecting crowd 
+and django. 
+I am a django-dummy therefore no fancy easy_install or whatever
+installation. 
+Installation is easy. Just copy those files next to yours and 
+add 
+AUTHENTICATION_BACKENDS = ('crowd.CrowdBackend.CrowdBackend',) 
+to your settings.py. There are some config options:
+
+'AUTH_CROWD_ALWAYS_UPDATE_USER': True,
+'AUTH_CROWD_MIRROR_GROUPS': True,
+'AUTH_CROWD_STAFF_GROUP': 'staff',
+'AUTH_CROWD_SUPERUSER_GROUP': 'superuser',
+'AUTH_CROWD_SERVER_URI': 'http://127.0.0.1:8095/crowd/services/SecurityServer?wsdl'
+ 
+The first two don't really work. But I planned to make them work.
