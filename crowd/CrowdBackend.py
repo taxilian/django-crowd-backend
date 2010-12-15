@@ -54,8 +54,8 @@ class CrowdBackend:
 
     def authenticateApplication(self, client):
         auth_context = client.factory.create('ns1:ApplicationAuthenticationContext')
-        auth_context.name = "django"
-        auth_context.credential.credential = "sep-2010"
+        auth_context.name = crowd_settings.AUTH_CROWD_APPLICATION_USER
+        auth_context.credential.credential = crowd_settings.AUTH_CROWD_APPLICATION_PASSWORD
         return client.service.authenticateApplication(auth_context)
 
     def createClient(self):
@@ -86,11 +86,11 @@ class CrowdBackend:
         user.is_active = True
         for soapAttribute in soap_principal.attributes[0]:
             if (soapAttribute.name == "mail"):
-                user.email = soapAttribute.values[0]
+                user.email = soapAttribute.values[0][0]
             if(soapAttribute.name == "givenName"):
-                user.first_name = soapAttribute.values[0]
+                user.first_name = soapAttribute.values[0][0]
             if(soapAttribute.name == "sn"):
-                user.last_name = soapAttribute.values[0]
+                user.last_name = soapAttribute.values[0][0]
         pass
 
     def populate_groups(self, user):
@@ -123,6 +123,8 @@ class CrowdSettings(object):
         'AUTH_CROWD_MIRROR_GROUPS': True,
         'AUTH_CROWD_STAFF_GROUP': 'staff',
         'AUTH_CROWD_SUPERUSER_GROUP': 'superuser',
+        'AUTH_CROWD_APPLICATION_USER': 'django',
+        'AUTH_CROWD_APPLICATION_PASSWORD': 'django',
         'AUTH_CROWD_SERVER_URI': 'http://127.0.0.1:8095/crowd/services/SecurityServer?wsdl'
     }
 

@@ -1,7 +1,7 @@
 from distutils.core import setup
 import os
 
-from registration import get_version
+from crowd import get_version
 
 
 # Compile the list of packages available, because distutils doesn't have
@@ -32,8 +32,7 @@ setup(name='django-crowd-backend',
       author='Sebastian Annies',
       author_email='Sebastian.Annies@googlemail.com',
       url='http://www.bitbucket.org/sannies/django-crowd-backend',
-      download_url='http://www.bitbucket.org/ubernostrum/django-registration/get/v0.7.gz',
-      package_dir={'registration': 'registration'},
+      package_dir={'crowd': 'crowd'},
       packages=packages,
       package_data={'registration': data_files},
       classifiers=['Development Status :: 4 - Beta',
