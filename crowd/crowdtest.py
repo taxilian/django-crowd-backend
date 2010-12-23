@@ -2,6 +2,7 @@ __author__ = 'sannies'
 
 
 from suds.client import Client
+from suds import WebFault
 import suds.xsd.doctor as dr
 
 wsdlurl = 'http://hoff.coremedia.com:8095/crowd/services/SecurityServer?wsdl'
@@ -30,13 +31,21 @@ auth_context = client.factory.create('ns1:ApplicationAuthenticationContext')
 auth_context.name = "django"
 auth_context.credential.credential = "sep-2010"
 
-token = client.service.authenticateApplication(auth_context)
+try:
+    token = client.service.authenticateApplication(auth_context)
+except WebFault, e:
+    print e
 
 principalToken = client.service.authenticatePrincipalSimple(token, 'sannies', 'sannies')
 print client.service.findGroupMemberships(token,'sannies')
 principal = client.service.findPrincipalByToken(token, principalToken )
-for soapAttribute in principal.attributes[0]:
-    print soapAttribute
-pass
+
+a = client.service.getCookieInfo(token)
+print a
+
+
+#for soapAttribute in principal.attributes[0]:
+#    print soapAttribute
+#pass
 
 
