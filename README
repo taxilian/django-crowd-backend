@@ -53,5 +53,7 @@ com.atlassian.crowd.model.authentication.ValidationFactor@71a755ed[name=remote_a
 2010-12-24 00:10:11,355 http-8095-10 DEBUG [service.soap.xfire.XFireOutLoggingMethodHandler] SOAP service method: isValidPrincipalToken
         false
         
+How to work with the middleware?
 
+simple: add 'crowd.middleware.CrowdSSOAuthenticationMiddleware' to your middlewares after the AuthenticationMiddleware
 
