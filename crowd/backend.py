@@ -125,14 +125,16 @@ class CrowdBackend:
                 user.is_staff = True
 
     def createValidationFactors(self, **kwargs):
-        validatation_factors = list()
+        validatation_factors_list = list()
         for key in kwargs:
             myValidationFactor = self.crowdClient.factory.create("ns0:ValidationFactor")
             myValidationFactor.name = key
             myValidationFactor.value = kwargs[key]
-            validatation_factors = validatation_factors, list(myValidationFactor)
+            validatation_factors_list = validatation_factors_list, list(myValidationFactor)
 
-        return validatation_factors
+        validation_factors = self.crowdClient.factory.create('ns0:ArrayOfValidationFactor')
+        validation_factors.ValidationFactor = validatation_factors_list
+        return validation_factors
 
 
     def findUserByToken(self, token, **kwargs):

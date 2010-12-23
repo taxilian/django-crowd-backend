@@ -28,6 +28,7 @@ client = Client(wsdlurl,doctor=doctor)
 print(client)
 
 auth_context = client.factory.create('ns1:ApplicationAuthenticationContext')
+
 auth_context.name = "django"
 auth_context.credential.credential = "sep-2010"
 
@@ -41,8 +42,9 @@ print client.service.findGroupMemberships(token,'sannies')
 principal = client.service.findPrincipalByToken(token, principalToken )
 
 a = client.service.getCookieInfo(token)
-print a
+print client.service.isValidPrincipalToken(token, principalToken)
 
+print a
 
 #for soapAttribute in principal.attributes[0]:
 #    print soapAttribute
