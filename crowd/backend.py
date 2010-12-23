@@ -87,6 +87,33 @@ class CrowdBackend:
 
         return user
 
+    def getValidationFactors(self, request):
+        self.check_client_and_app_authentication()
+        validatation_factors_list = []
+        remoteAddress = request.META["REMOTE_ADDR"]
+        if remoteAddress is not None and len(remoteAddress) > 0:
+            myValidationFactor = self.crowdClient.factory.create("ns0:ValidationFactor")
+            myValidationFactor.name ="remote_address"
+            if remoteAddress == '127.0.0.1' or remoteAddress == '0.0.0.0':
+                remoteAddress = '0:0:0:0:0:0:0:1%0'
+            myValidationFactor.value = remoteAddress
+            validatation_factors_list = validatation_factors_list, myValidationFactor
+
+        try:
+            remoteAddressXForwardFor = request.META["X-Forwarded-For"]
+            if remoteAddressXForwardFor != remoteAddress:
+                myValidationFactor = self.crowdClient.factory.create("ns0:ValidationFactor")
+                myValidationFactor.name = "X-Forwarded-For"
+                myValidationFactor.value = remoteAddressXForwardFor
+                validatation_factors_list = validatation_factors_list, myValidationFactor
+
+        except KeyError:
+            pass
+
+        validation_factors = self.crowdClient.factory.create('ns0:ArrayOfValidationFactor')
+        validation_factors.ValidationFactor = validatation_factors_list
+        return  validation_factors
+
 
     def authenticateApplication(self, client):
         auth_context = client.factory.create('ns1:ApplicationAuthenticationContext')
@@ -124,23 +151,12 @@ class CrowdBackend:
             if (group.name == crowd_settings.AUTH_CROWD_STAFF_GROUP):
                 user.is_staff = True
 
-    def createValidationFactors(self, **kwargs):
-        validatation_factors_list = list()
-        for key in kwargs:
-            myValidationFactor = self.crowdClient.factory.create("ns0:ValidationFactor")
-            myValidationFactor.name = key
-            myValidationFactor.value = kwargs[key]
-            validatation_factors_list = validatation_factors_list, list(myValidationFactor)
-
-        validation_factors = self.crowdClient.factory.create('ns0:ArrayOfValidationFactor')
-        validation_factors.ValidationFactor = validatation_factors_list
-        return validation_factors
 
 
-    def findUserByToken(self, token, **kwargs):
+    def findUserByToken(self, token, validationFactors):
         "returns the user if the principal token is valid"
         self.check_client_and_app_authentication()
-        if self.crowdClient.service.isValidPrincipalToken(self.authenticationToken, token, self.createValidationFactors( **kwargs)):
+        if self.crowdClient.service.isValidPrincipalToken(self.authenticationToken, token, validationFactors):
             principal = self.crowdClient.service.findPrincipalByToken(
                     self.authenticationToken,
                     token)
@@ -149,14 +165,14 @@ class CrowdBackend:
         else:
             return None
 
-    def getPrincipalToken(self, username, **kwargs):
+    def getPrincipalToken(self, username, validationFactors):
         self.check_client_and_app_authentication()
 
         if self.principalToken is None:
             self.principalToken = self.crowdClient.service.createPrincipalToken(
                     self.authenticationToken,
                     username,
-                    self.createValidationFactors(**kwargs))
+                    validationFactors)
 
         return self.principalToken
 

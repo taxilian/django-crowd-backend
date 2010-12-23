@@ -2,6 +2,7 @@ from crowd.backend import CrowdBackend
 from datetime import  datetime, timedelta
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.models import AnonymousUser
+import crowd
 
 __author__ = 'sannies'
 
@@ -19,10 +20,8 @@ class CrowdSSOAuthenticationMiddleware(object):
             return None
         else:
             if request.user.is_anonymous():
-                kwargs = {CrowdBackend.REMOTE_ADDRESS: request.META["REMOTE_ADDR"],
-                          CrowdBackend.USER_AGENT: request.META["HTTP_USER_AGENT"],
-                          CrowdBackend.REMOTE_HOST: request.META["REMOTE_HOST"]}
-                crowdUser = self.crowdBackend.findUserByToken(crowd_token, **kwargs)
+                validationFactors = self.crowdBackend.getValidationFactors(request)
+                crowdUser = self.crowdBackend.findUserByToken(crowd_token, validationFactors)
 
                 if crowdUser is not None:
                     auth_login(request, crowdUser)
@@ -38,10 +37,8 @@ class CrowdSSOAuthenticationMiddleware(object):
             crowd_token = None
         if request.user.is_authenticated() and crowd_token is None:
             cookieInfo = self.crowdBackend.getCookieInfo()
-            kwargs = {CrowdBackend.REMOTE_ADDRESS: request.META["REMOTE_ADDR"],
-                      CrowdBackend.USER_AGENT: request.META["HTTP_USER_AGENT"],
-                      CrowdBackend.REMOTE_HOST: request.META["REMOTE_HOST"]}            
-            principalToken = self.crowdBackend.getPrincipalToken(request.user.username, **kwargs)
+            validationFactors = self.crowdBackend.getValidationFactors(request)
+            principalToken = self.crowdBackend.getPrincipalToken(request.user.username, validationFactors)
             max_age = 30 * 365 * 24 * 60 * 60
             expires = datetime.strftime(datetime.utcnow() + timedelta(seconds=max_age), "%a, %d-%b-%Y %H:%M:%S GMT")
             response.set_cookie("crowd.token_key",
