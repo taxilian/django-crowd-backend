@@ -22,7 +22,7 @@ class CrowdSSOAuthenticationMiddleware(object):
             if request.user.is_anonymous():
                 validationFactors = self.crowdBackend.getValidationFactors(request)
                 crowdUser = self.crowdBackend.findUserByToken(crowd_token, validationFactors)
-
+                crowdUser.backend = "%s.%s" % (self.crowdBackend.__module__, self.crowdBackend.__class__.__name__)
                 if crowdUser is not None:
                     auth_login(request, crowdUser)
                 return None

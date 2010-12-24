@@ -95,7 +95,7 @@ class CrowdBackend:
             myValidationFactor = self.crowdClient.factory.create("ns0:ValidationFactor")
             myValidationFactor.name ="remote_address"
             if remoteAddress == '127.0.0.1' or remoteAddress == '0.0.0.0':
-                remoteAddress = '0:0:0:0:0:0:0:1%0'
+                remoteAddress = '0:0:0:0:0:0:0:1'
             myValidationFactor.value = remoteAddress
             validatation_factors_list = validatation_factors_list, myValidationFactor
 
