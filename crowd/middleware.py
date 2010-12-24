@@ -1,8 +1,6 @@
 from crowd.backend import CrowdBackend
 from datetime import  datetime, timedelta
 from django.contrib.auth import login as auth_login
-from django.contrib.auth.models import AnonymousUser
-import crowd
 
 __author__ = 'sannies'
 
