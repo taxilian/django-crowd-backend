@@ -68,6 +68,7 @@ class CrowdBackend:
         if save_user:
             user.save()
 
+        user.isCrowdUser = True
         return user
 
 
@@ -89,15 +90,16 @@ class CrowdBackend:
 
     def getValidationFactors(self, request):
         self.check_client_and_app_authentication()
-        validatation_factors_list = []
+        validation_factors_list = []
         remoteAddress = request.META["REMOTE_ADDR"]
         if remoteAddress is not None and len(remoteAddress) > 0:
             myValidationFactor = self.crowdClient.factory.create("ns0:ValidationFactor")
             myValidationFactor.name ="remote_address"
+            # Crowd seems to expect the IP6 address
             if remoteAddress == '127.0.0.1' or remoteAddress == '0.0.0.0':
                 remoteAddress = '0:0:0:0:0:0:0:1'
             myValidationFactor.value = remoteAddress
-            validatation_factors_list = validatation_factors_list, myValidationFactor
+            validation_factors_list = validation_factors_list, myValidationFactor
 
         try:
             remoteAddressXForwardFor = request.META["X-Forwarded-For"]
@@ -105,13 +107,13 @@ class CrowdBackend:
                 myValidationFactor = self.crowdClient.factory.create("ns0:ValidationFactor")
                 myValidationFactor.name = "X-Forwarded-For"
                 myValidationFactor.value = remoteAddressXForwardFor
-                validatation_factors_list = validatation_factors_list, myValidationFactor
+                validation_factors_list = validation_factors_list, myValidationFactor
 
         except KeyError:
             pass
 
         validation_factors = self.crowdClient.factory.create('ns0:ArrayOfValidationFactor')
-        validation_factors.ValidationFactor = validatation_factors_list
+        validation_factors.ValidationFactor = validation_factors_list
         return  validation_factors
 
 

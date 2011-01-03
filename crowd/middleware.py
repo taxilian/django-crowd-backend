@@ -1,31 +1,33 @@
 from crowd.backend import CrowdBackend
 from datetime import  datetime, timedelta
 from django.contrib.auth import login as auth_login
+from django.contrib.auth.models import AnonymousUser
 
 __author__ = 'sannies'
 
 
 class CrowdSSOAuthenticationMiddleware(object):
     crowdBackend = CrowdBackend()
+    crowdUserLoggedIn = False
 
     def process_request(self, request):
         try:
             crowd_token = request.COOKIES["crowd.token_key"]
         except KeyError:
-            crowd_token = None
+            return None
 
-        if crowd_token is None:
+        if request.user.is_anonymous():
+            validationFactors = self.crowdBackend.getValidationFactors(request)
+            crowdUser = self.crowdBackend.findUserByToken(crowd_token, validationFactors)
+            if crowdUser is not None:
+                crowdUser.backend = "%s.%s" % (self.crowdBackend.__module__, self.crowdBackend.__class__.__name__)
+                auth_login(request, crowdUser)
+                self.crowdUserLoggedIn = True
             return None
         else:
-            if request.user.is_anonymous():
-                validationFactors = self.crowdBackend.getValidationFactors(request)
-                crowdUser = self.crowdBackend.findUserByToken(crowd_token, validationFactors)
-                crowdUser.backend = "%s.%s" % (self.crowdBackend.__module__, self.crowdBackend.__class__.__name__)
-                if crowdUser is not None:
-                    auth_login(request, crowdUser)
-                return None
-            else:
-                return None
+            if hasattr(request.user, 'isCrowdUser') and request.user.isCrowdUser:
+                self.crowdUserLoggedIn = True
+            return None
 
 
     def process_response(self, request, response):
@@ -44,6 +46,10 @@ class CrowdSSOAuthenticationMiddleware(object):
                         expires=expires, domain=cookieInfo.domain,
                         path="/",
                         secure=cookieInfo.secure)
+        else:
+            if request.user is AnonymousUser and crowd_token is not None and self.crowdUserLoggedIn:
+                self.crowdBackend.invalidateToken()
+
 
         return response
 
