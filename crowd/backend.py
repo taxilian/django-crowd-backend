@@ -18,9 +18,8 @@ class CrowdBackend(object):
 
 
     def createClient(self):
-
-    # The following dictionary has the targetNamespace as the key and a list
-    # of namespaces that need to be imported as the value for that key
+        # The following dictionary has the targetNamespace as the key and a list
+        # of namespaces that need to be imported as the value for that key
         patches = {"urn:SecurityServer": ["http://authentication.integration.crowd.atlassian.com",
                                           "http://soap.integration.crowd.atlassian.com",
                                           "http://exception.integration.crowd.atlassian.com",
@@ -182,8 +181,14 @@ class CrowdBackend(object):
 
 
     def getCookieInfo(self):
-        self.check_client_and_app_authentication()
-        return self.crowdClient.service.getCookieInfo(self.authenticationToken)
+        try:
+            self.check_client_and_app_authentication()
+            return self.crowdClient.service.getCookieInfo(self.authenticationToken)
+        except WebFault, e:
+            self.crowdClient = None
+            self.authenticationToken = None
+            self.check_client_and_app_authentication()
+            return self.crowdClient.service.getCookieInfo(self.authenticationToken)
 
 
 class CrowdSettings(object):
