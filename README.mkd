@@ -35,6 +35,10 @@ Installation
 
 Clone the repository and execute sudo python setup.py install. At least this is what I do and I don't know much python and django.
 
+You will need to install the following python modules:
+
+*  suds
+
 Problems?
 =========
 
