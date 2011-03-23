@@ -1,0 +1,46 @@
+Welcome to my Atlassian Crowd Django Backend and SSO Middleware
+===============================================================
+
+During my last project at work I created a small proof of concept django app enriching static HTML with comments. This is not hard as you can imagine but in a corporate environment you need to connect to the user repository containing all your customer & staff logins. That was Atlassian Crowd.
+
+Crowd Authentication Backend
+============================
+
+The first step was to create a very simple integration just by sending an authentication request, creating a django user and so on. Easy said easy done. Go ahead and add
+
+    AUTHENTICATION_BACKENDS = ('crowd.backend.CrowdBackend',)
+
+    AUTH_CROWD_STAFF_GROUP = 'staff'
+    AUTH_CROWD_SUPERUSER_GROUP = 'superuser'
+    AUTH_CROWD_APPLICATION_USER = 'django'
+    AUTH_CROWD_APPLICATION_PASSWORD = 'django'
+    AUTH_CROWD_SERVER_URI = 'http://127.0.0.1:8095/crowd/services/SecurityServer?wsdl'
+to your settings.py
+
+Crowd Single Sign On Middleware
+===============================
+
+The middleware intercepts the crowd.auth_token cookie (SSO cookie) and creates a crowd user on the fly. SSO works both ways: Creating the token AND consuming the token. Logout invalidates the Crowd Token and logs out from all crowd applications in the SSO domain.
+
+Add 'crowd.middleware.CrowdSSOAuthenticationMiddleware', to your MIDDLEWARE_CLASSES after the AuthenticationMiddleware.
+
+Known Issues
+============
+
+1. If a token expires something will happen and I don't know what!
+2. Errorhandling is absent!
+
+Installation
+============
+
+Clone the repository and execute sudo python setup.py install. At least this is what I do and I don't know much python and django.
+
+Problems?
+=========
+
+Just send me a message. Let's see if I can help.
+
+License
+=======
+
+Use this code as you want. Consider it free. Say thank you. Don't blame me if it doesn't work for you.
