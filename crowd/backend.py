@@ -1,9 +1,9 @@
-from suds.client import Client
+from suds.client import Client, WebFault
 import suds.xsd.doctor as dr
 from django.contrib.auth.models import User, Group
 
 
-class CrowdBackend:
+class CrowdBackend(object):
     "Atlassian Crowd Authentication Backend"
     crowdClient = None
     authenticationToken = None
@@ -73,11 +73,13 @@ class CrowdBackend:
 
 
     def authenticate(self, username=None, password=None):
-        self.check_client_and_app_authentication()
-        self.principalToken = self.crowdClient.service.authenticatePrincipalSimple(self.authenticationToken, username,
-                                                                                   password)
-        return self.create_or_update_user(username)
-
+        try:
+            self.check_client_and_app_authentication()
+            self.principalToken = self.crowdClient.service.authenticatePrincipalSimple(self.authenticationToken, username,
+                                                                                       password)
+            return self.create_or_update_user(username)
+        except WebFault, e:
+            return None
 
     def get_user(self, user_id):
         user = None
