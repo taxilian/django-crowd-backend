@@ -158,15 +158,29 @@ class CrowdBackend(object):
 
     def findUserByToken(self, token, validationFactors):
         "returns the user if the principal token is valid"
-        self.check_client_and_app_authentication()
-        if self.crowdClient.service.isValidPrincipalToken(self.authenticationToken, token, validationFactors):
-            principal = self.crowdClient.service.findPrincipalByToken(
-                    self.authenticationToken,
-                    token)
-            self.principalToken = token
-            return self.create_or_update_user(principal.name)
-        else:
-            return None
+        try:
+            self.check_client_and_app_authentication()
+            if self.crowdClient.service.isValidPrincipalToken(self.authenticationToken, token, validationFactors):
+                principal = self.crowdClient.service.findPrincipalByToken(
+                        self.authenticationToken,
+                        token)
+                self.principalToken = token
+                return self.create_or_update_user(principal.name)
+            else:
+                return None
+        except WebFault, e:
+            try:
+                if self.crowdClient.service.isValidPrincipalToken(self.authenticationToken, token, validationFactors):
+                    principal = self.crowdClient.service.findPrincipalByToken(
+                            self.authenticationToken,
+                            token)
+                    self.principalToken = token
+                    return self.create_or_update_user(principal.name)
+                else:
+                    return None
+            except WebFault, e:
+                return None
+
 
     def getPrincipalToken(self, username, validationFactors):
         self.check_client_and_app_authentication()
