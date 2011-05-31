@@ -130,11 +130,11 @@ class CrowdBackend(object):
         soap_principal = self.crowdClient.service.findPrincipalByName(self.authenticationToken, user.username)
         user.is_active = True
         for soapAttribute in soap_principal.attributes[0]:
-            if (soapAttribute.name == "mail"):
+            if (soapAttribute.name == "mail" and soapAttribute.values[0]):
                 user.email = soapAttribute.values[0][0]
-            if(soapAttribute.name == "givenName"):
+            if(soapAttribute.name == "givenName" and soapAttribute.values[0]):
                 user.first_name = soapAttribute.values[0][0]
-            if(soapAttribute.name == "sn"):
+            if(soapAttribute.name == "sn" and soapAttribute.values[0]):
                 user.last_name = soapAttribute.values[0][0]
         pass
 
